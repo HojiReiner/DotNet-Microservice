@@ -11,5 +11,16 @@ services:
     volumes:
       - mongodbdata:/data/db
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672   #Publish/Consume messages
+      - 15672:15672 #Portal(http://localhost:15672/) guest/guest
+    volumes:
+      - rabbitmqdata:/var/lib/rabittmq
+    hostname: rabbitmq
+
 volumes:
   mongodbdata:
+  rabbitmqdata:

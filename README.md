@@ -22,6 +22,9 @@ dotnet new webapi -n <name>
 #Add package to project
 dotnet add package <name>
 
+#Add Library
+dotnet add reference <path>.csproj
+
 #Build Project
 dotnet build
 

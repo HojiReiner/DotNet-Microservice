@@ -1,7 +1,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Play.Common;
-using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Dtos;
 using Play.Inventory.Service.Entities;
 
@@ -11,13 +10,13 @@ namespace Play.Inventory.Service.Controllers
     [Route("items")]
     public class ItemsController : ControllerBase
     {
-        private readonly IRepository<InventoryItem> itemsRepository;
-        private readonly CatalogClient catalogClient;
+        private readonly IRepository<InventoryItem> inventoryItemsRepository;
+        private readonly IRepository<CatalogItem> catalogItemsRepository;
 
-        public ItemsController(IRepository<InventoryItem> itemRepository, CatalogClient catalogClient)
+        public ItemsController(IRepository<InventoryItem> itemItemsRepository, IRepository<CatalogItem> catalogItemsRepository)
         {
-            this.itemsRepository = itemRepository;
-            this.catalogClient = catalogClient;
+            this.inventoryItemsRepository = itemItemsRepository;
+            this.catalogItemsRepository = catalogItemsRepository;
         }
 
         [HttpGet]
@@ -28,8 +27,9 @@ namespace Play.Inventory.Service.Controllers
                 return BadRequest();
             }
 
-            var catalogItems = await catalogClient.GetCatalogItemtAsync();
-            var inventoryitems = await itemsRepository.GetAllAsync(items => items.UserId == userId);
+            var inventoryitems = await inventoryItemsRepository.GetAllAsync(items => items.UserId == userId);
+            var itemsIds = inventoryitems.Select(item => item.CatalogId);
+            var catalogItems = await catalogItemsRepository.GetAllAsync(item => itemsIds.Contains(item.Id));
 
             var inventoryItemDto = inventoryitems.Select(inventoryitem =>
             {
@@ -43,7 +43,7 @@ namespace Play.Inventory.Service.Controllers
         [HttpPost]
         public async Task<ActionResult> PostAsync(GrantItemsDto grantItemsDto)
         {
-            var inventoryItem = await itemsRepository.GetAsync(
+            var inventoryItem = await inventoryItemsRepository.GetAsync(
                 item => item.UserId == grantItemsDto.UserId && item.CatalogId == grantItemsDto.CatalogId);
 
             if (inventoryItem == null)
@@ -56,13 +56,13 @@ namespace Play.Inventory.Service.Controllers
                     AcquiredDate = DateTimeOffset.UtcNow
                 };
 
-                await itemsRepository.CreateAsync(inventoryItem);
+                await inventoryItemsRepository.CreateAsync(inventoryItem);
             }
             else
             {
                 inventoryItem.Quantity += grantItemsDto.Quantity;
 
-                await itemsRepository.UpdateAsync(inventoryItem);
+                await inventoryItemsRepository.UpdateAsync(inventoryItem);
             }
 
             return Ok();

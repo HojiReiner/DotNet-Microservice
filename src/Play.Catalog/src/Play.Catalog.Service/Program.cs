@@ -1,7 +1,11 @@
 using Play.Catalog.Service.Entities;
 using Play.Common.MongoDB;
+using Play.Common.MassTransit;
+using Play.Common.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
 
 // Add services to the container.
 builder.Services.AddControllers(options =>
@@ -16,6 +20,9 @@ builder.Services.AddSwaggerGen();
 //Mongo
 builder.Services.AddMongo();
 builder.Services.AddMongoRepository<Item>("items");
+
+//RabbitMQ
+builder.Services.AddMassTransitWithRabbitMQ();
 
 var app = builder.Build();
 
