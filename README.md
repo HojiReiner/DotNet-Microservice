@@ -7,6 +7,8 @@
 
 **!THE ORIGINAL COURSE IS IN .NET5 BUT I'VE DONE IT IN .NET6!**
 
+**!THE FRONTEND WASN'T DEVELOPED BY ME, PREMADE FROM THE GUIDE!**
+
 ## About
 
 This project works as a backend server of an hipotetical videogame, and manages everything related to item economy
